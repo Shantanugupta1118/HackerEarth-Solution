@@ -1,0 +1,82 @@
+
+
+    #include <bits/stdc++.h>
+    #define fst first
+    #define snd second
+    #define fore(i,a,b) for(int i=a,ThxDem=b;i<ThxDem;++i)
+    #define pb push_back
+    #define ALL(s) s.begin(),s.end()
+    #define FIN ios_base::sync_with_stdio(0);cin.tie(0);cout.tie(0)
+    #define SZ(s) int(s.size())
+    using namespace std;
+    typedef long long ll;
+    typedef pair<int,int> ii;
+     
+    ll MOD=1e9+7,f[100010],inv[100010];
+     
+    ll sign(ll x){return x>=0;}
+     
+    ll fpow(ll base, ll exp) {
+    	ll result = 1;
+    	while(exp){
+    		if(exp & 1) result = (result*base) % MOD;
+    		exp >>= 1;
+    		base = (base*base) % MOD;
+    	}
+    	return result;
+    }
+     
+    ll brute(ll n, ll h1, ll h2, vector<ll>&v){
+    	ll ans=0;
+    	fore(a,0,n+1){
+    		fore(b,0,n-a+1){
+    			ll c=n-a-b;
+    			if(h1+a*v[0]+b*v[1]+c*v[2]==h2){
+    				ans+=f[n]*inv[a]%MOD*inv[b]%MOD*inv[c]%MOD;
+    				ans%=MOD;
+    			}
+    		}
+    	}
+    	return ans;
+    }
+     
+    int main(){FIN;
+    	f[0]=1; inv[0]=1;
+    	fore(i,1,100010) f[i]=f[i-1]*i%MOD, inv[i]=fpow(f[i],MOD-2);
+    	ll n,ans=0,h1,h2,p1,p2,p3; cin>>n>>h1>>h2>>p1>>p2>>p3;
+    	vector<ll> v={p1,p2,p3}; sort(ALL(v)); v.erase(unique(ALL(v)),v.end());
+    	if(SZ(v)==1){
+    		ans=h1+n*v[0]==h2;
+    	}
+    	else if(SZ(v)==2){
+    		fore(a,0,n+1){
+    			if(h1+a*v[0]+(n-a)*v[1]==h2){
+    				ans+=f[n]*inv[a]%MOD*inv[n-a]%MOD;
+    				ans%=MOD;
+    			}
+    		}
+    	}
+    	else{
+    		p1=v[0]; p2=v[1]; p3=v[2];
+    		fore(a,0,n+1){
+    			ll x=h2-h1-a*p1;	//b*p2+c*p3=x
+    			ll m=n-a;
+    			x-=m*p3;
+    			ll pp=p2-p3;
+    			if(sign(x)!=sign(pp)&&x) continue;
+    			x=abs(x); pp=abs(pp);
+    			if(x%pp==0){
+    				ll b=x/pp, c=m-b;
+    				if(b>=0&&c>=0&&a+b+c==n){
+    //					cout << a << " " << b << " " << c << "\n";
+    					ans+=f[n]*inv[a]%MOD*inv[b]%MOD*inv[c]%MOD;
+    					ans%=MOD;
+    				}
+    			}
+    		}
+    		//cout << ans << " " << brute(n,h1,h2,v) << endl;
+    		//assert(ans==brute(n,h1,h2,v));
+    	}
+    	cout << ans << "\n";
+    }
+

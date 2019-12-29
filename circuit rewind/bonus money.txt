@@ -1,0 +1,258 @@
+
+
+    #include <bits/stdc++.h>
+    using namespace std;
+    //#pragma GCC optimize("Ofast")
+    //#pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
+     
+    #define ms(s, n) memset(s, n, sizeof(s))
+    #define FOR(i, a, b) for (int i = (a); i < (b); ++i)
+    #define FORd(i, a, b) for (int i = (a) - 1; i >= (b); --i)
+    #define FORall(it, a) for (__typeof((a).begin()) it = (a).begin(); it != (a).end(); it++)
+    #define sz(a) int((a).size())
+    #define present(t, x) (t.find(x) != t.end())
+    #define all(a) (a).begin(), (a).end()
+    #define uni(a) (a).erase(unique(all(a)), (a).end())
+    #define pb push_back
+    #define pf push_front
+    #define mp make_pair
+    #define fi first
+    #define se second
+    #define prec(n) fixed<<setprecision(n)
+    #define bit(n, i) (((n) >> (i)) & 1)
+    #define bitcount(n) __builtin_popcountll(n)
+    typedef long long ll;
+    typedef unsigned long long ull;
+    typedef long double ld;
+    typedef pair<int, int> pi;
+    typedef vector<int> vi;
+    typedef vector<pi> vii;
+    const int MOD = (int) 1e9 + 7;
+    const int FFTMOD = 1007681537;
+    const int INF = (int) 1e9;
+    const ll LINF = (ll) 1e18;
+    const ld PI = acos((ld) -1);
+    const ld EPS = 1e-9;
+    inline ll gcd(ll a, ll b) {ll r; while (b) {r = a % b; a = b; b = r;} return a;}
+    inline ll lcm(ll a, ll b) {return a / gcd(a, b) * b;}
+    inline ll fpow(ll n, ll k, int p = MOD) {ll r = 1; for (; k; k >>= 1) {if (k & 1) r = r * n % p; n = n * n % p;} return r;}
+    template<class T> inline int chkmin(T& a, const T& val) {return val < a ? a = val, 1 : 0;}
+    template<class T> inline int chkmax(T& a, const T& val) {return a < val ? a = val, 1 : 0;}
+    inline ll isqrt(ll k) {ll r = sqrt(k) + 1; while (r * r > k) r--; return r;}
+    inline ll icbrt(ll k) {ll r = cbrt(k) + 1; while (r * r * r > k) r--; return r;}
+    inline void addmod(int& a, int val, int p = MOD) {if ((a = (a + val)) >= p) a -= p;}
+    inline void submod(int& a, int val, int p = MOD) {if ((a = (a - val)) < 0) a += p;}
+    inline int mult(int a, int b, int p = MOD) {return (ll) a * b % p;}
+    inline int inv(int a, int p = MOD) {return fpow(a, p - 2, p);}
+    inline int sign(ld x) {return x < -EPS ? -1 : x > +EPS;}
+    inline int sign(ld x, ld y) {return sign(x - y);}
+    #define db(x) cerr << #x << " = " << (x) << " ";
+    #define endln cerr << "\n";
+     
+    namespace SubTask1 {
+        const int maxn = 1e3 + 5;
+        int dp[maxn][maxn];
+     
+        void build(int p) {
+            dp[0][0] = 1 % p;
+            FOR(i, 1, maxn) FOR(j, 0, maxn) {
+                dp[i][j] = dp[i - 1][j];
+                if (j >= i) {
+                    addmod(dp[i][j], dp[i][j - i], p);
+                }
+            }
+        }
+        void solve(int n, int k) {
+            cout << dp[k][n] << "\n";
+        }
+    }
+     
+    namespace SubTask2 {
+        const int maxn = 2e5 + 5;
+        const int magic = 650;
+        int dp[magic][maxn];
+        int g[maxn];
+        int p;
+     
+        void build(int pp) {
+            p = pp;
+            dp[0][0] = 1 % p;
+            FOR(i, 1, magic) FOR(j, i, maxn) {
+                dp[i][j] = dp[i - 1][j - i];
+                addmod(dp[i][j], dp[i][j - i], p);
+            }
+            g[0] = 1 % p;
+            FOR(i, 1, maxn) {
+                for (int j = 1; j * (3 * j - 1) / 2 <= i; j++) {
+                    if (j & 1) {
+                        addmod(g[i], g[i - j * (3 * j - 1) / 2], p);
+                    }
+                    else {
+                        submod(g[i], g[i - j * (3 * j - 1) / 2], p);
+                    }
+                }
+                for (int j = 1; j * (3 * j + 1) / 2 <= i; j++) {
+                    if (j & 1) {
+                        addmod(g[i], g[i - j * (3 * j + 1) / 2], p);
+                    }
+                    else {
+                        submod(g[i], g[i - j * (3 * j + 1) / 2], p);
+                    }
+                }
+            }
+        }
+     
+        void solve(int n, int k) {
+            if (n <= k) {
+                cout << g[n] << "\n";
+                return;
+            }
+            vi q(n + 1);
+            FOR(i, 0, magic) FOR(j, i, maxn) {
+                if (j + i * k <= n) {
+                    if (!(i & 1)) {
+                        addmod(q[j + i * k], dp[i][j], p);
+                    }
+                    else {
+                        submod(q[j + i * k], dp[i][j], p);
+                    }
+                }
+            }
+            int res = 0;
+            FOR(i, 0, n + 1) {
+                addmod(res, mult(q[i], g[n - i], p), p);
+            }
+            cout << res << "\n";
+        }
+    }
+     
+    namespace SubTask3 {
+        struct Interpolation {
+            static const int maxn = 1e5 + 5;
+            int a[maxn];
+            int fac[maxn];
+            int ifac[maxn];
+            int prf[maxn];
+            int suf[maxn];
+            int p;
+     
+            void upd(int u, int v) {
+                a[u] = v;
+            }
+            void build(int pp) {
+                p = pp;
+                fac[0] = ifac[0] = 1;
+                for (int i = 1; i < maxn; i++) {
+                    fac[i] = (long long) fac[i - 1] * i % p;
+                    ifac[i] = fpow(fac[i], p - 2, p);
+                }
+            }
+            //Calculate P(x) of degree k - 1, k given P(i) = a[i] for i = 1, 2,..., k
+            int calc(int x, int k) {
+                prf[0] = suf[k + 1] = 1;
+                for (int i = 1; i <= k; i++) {
+                    prf[i] = (long long) prf[i - 1] * (x - i + p) % p;
+                }
+                for (int i = k; i >= 1; i--) {
+                    suf[i] = (long long) suf[i + 1] * (x - i + p) % p;
+                }
+                int res = 0;
+                for (int i = 1; i <= k; i++) {
+                    if (!((k - i) & 1)) {
+                        res = (res + (long long) prf[i - 1] * suf[i + 1] % p * ifac[i - 1] % p * ifac[k - i] % p * a[i]) % p;
+                    }
+                    else {
+                        res = (res - (long long) prf[i - 1] * suf[i + 1] % p * ifac[i - 1] % p * ifac[k - i] % p * a[i] % p + p) % p;
+                    }
+                }
+                return res;
+            }
+        } ip;
+     
+        const int maxn = 10 + 1;
+        const int maxx = 3e4 + 5;
+        long long n;
+        int k;
+        int dp[maxn][maxx];
+        int p;
+     
+        void build(int pp) {
+            p = pp;
+            ip.build(p);
+            dp[0][0] = 1 % p;
+            FOR(i, 1, maxn) FOR(j, 0, maxx) {
+                dp[i][j] = dp[i - 1][j];
+                if (j >= i) {
+                    addmod(dp[i][j], dp[i][j - i], p);
+                }
+            }
+        }
+     
+        void solve(long long n, int k) {
+            if (n < maxx) {
+                cout << dp[k][n] << "\n";
+                return;
+            }
+            int g = 1; FOR(i, 2, k + 1) g = lcm(g, i);
+            int r = n % g;
+            FOR(i, 1, k + 1) ip.upd(i, dp[k][r + i * g]);
+            cout << ip.calc(n / g % p, k) << "\n";
+        }
+    }
+     
+    long long toInt(string s) {
+        long long res = 0;
+        for (char c : s) {
+            res = res * 10 + c - '0';
+        }
+        return res;
+    }
+     
+    void chemthan() {
+        int test, p; cin >> test >> p;
+        assert(1 <= test && test <= 1e5);
+        assert(1 <= p && p <= (int) 1e9 + 7);
+        SubTask1::build(p);
+        SubTask3::build(p);
+        int summ = 0;
+        FOR(it, 0, test) {
+            int n; string sm; cin >> n >> sm;
+            summ += sz(sm);
+            assert(summ <= 2e6);
+            long long m = toInt(sm);
+            if (test == 1 && 1 <= n && n <= 2e5 && sz(sm) <= 6 && 1 <= m && m <= 2e5) {
+                SubTask2::build(p);
+                SubTask2::solve(m, n);
+            }
+            else if (1 <= n && n <= 1e3 && sz(sm) <= 4 && 1 <= m && m <= 1e3) {
+                SubTask1::solve(m, n);
+            }
+            else {
+                assert(p == (int) 1e9 + 7);
+                assert(1 <= n && n <= 10);
+                assert(sz(sm) && sz(sm) <= 1e5 && sm[0] != '0');
+                long long g = 1;
+                FOR(i, 1, n + 1) g = lcm(g, i);
+                m = 0;
+                for (char c : sm) {
+                    assert('0' <= c && c <= '9');
+                    m = (m * 10 + c - '0') % (g * p);
+                }
+                SubTask3::solve(m, n);
+            }
+        }
+    }
+     
+    int main(int argc, char* argv[]) {
+        ios_base::sync_with_stdio(0), cin.tie(0);
+        if (argc > 1) {
+            assert(freopen(argv[1], "r", stdin));
+        }
+        if (argc > 2) {
+            assert(freopen(argv[2], "wb", stdout));
+        }
+        chemthan();
+        cerr << "\nTime elapsed: " << 1000 * clock() / CLOCKS_PER_SEC << "ms\n";
+        return 0;
+    } 
+

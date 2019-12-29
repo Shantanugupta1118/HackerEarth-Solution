@@ -1,0 +1,64 @@
+
+
+    #include <iostream>
+    using namespace std;
+    typedef long long ll;
+    typedef pair<pair<ll, ll>, pair<ll, ll>> data;
+     
+    const ll INF = 1e18;
+    const int N = 1<<17;
+    ll vals[N];
+    data seg[2 * N];
+     
+    data join(data le, data ri) {
+    	data res;
+    	res.first.first = le.first.first + ri.first.first;
+    	res.first.second = max(max(le.first.second, ri.first.second), le.second.second + ri.second.first);
+    	res.second.first = max(le.second.first, le.first.first + ri.second.first);
+    	res.second.second = max(ri.second.second, ri.first.first + le.second.second);
+    	return res;
+    }
+     
+    data get(int a, int b, int i = 1, int ia = 0, int ib = N-1) {
+    	if (b < ia || ib < a) return {{0, -INF}, {-INF, -INF}};
+    	if (a <=ia && ib <=b) return seg[i];
+     
+    	int mid = (ia + ib) >> 1;
+    	data le = get(a, b, 2*i, ia, mid);
+    	data ri = get(a, b, 2*i+1, mid+1, ib);
+    	return join(le, ri);
+    }
+     
+    int main() {
+    	int n, q;
+    	cin >> n >> q;
+    	
+    	ll maxv = -INF;
+    	for (int i = 0; i < n; ++i) {
+    		cin >> vals[i];
+    		maxv = max(maxv, vals[i]);
+    	}
+    	
+    	for (int i = 0; i < n; ++i) {
+    		ll offer = max((ll)0, vals[i]);
+    		seg[i + N] = {{vals[i], offer}, {offer, offer}};
+    	}
+    	for (int i = N-1; i > 0; --i) seg[i] = join(seg[2*i], seg[2*i+1]);
+     
+    	for (int j = 0; j < q; ++j) {
+    		int a, b;
+    		cin >> a >> b;
+    		--a; --b;
+    		
+    		data le = get(0, a-1);
+    		data mi = get(a, b);
+    		data ri = get(b+1, n-1);
+     
+    		swap(mi.second.first, mi.second.second);
+    	
+    		data res = join(le, join(mi, ri));
+    		if (res.first.second <= 0) cout << maxv << '\n';
+    		else cout << res.first.second << '\n';
+    	}
+    }
+

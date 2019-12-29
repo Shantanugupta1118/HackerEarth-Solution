@@ -1,0 +1,80 @@
+
+
+    #include<bits/stdc++.h>
+    #include<ext/pb_ds/assoc_container.hpp>
+    #include<ext/pb_ds/tree_policy.hpp>
+    #define ll int
+    #define M 1000000007
+    #define sz(a) (ll)a.size()
+    #define pll pair<ll,ll>
+    #define rep(i,a,b) for(ll i=(ll)a;i<(ll)b;i++)
+    #define sep(i,a,b) for(ll i=(ll)a;i>=(ll)b;i--)
+    #define mll map<ll,ll>
+    #define vl vector<ll>
+    #define pb push_back
+    #define lb lower_bound
+    #define ub upper_bound
+    #define all(a) a.begin(),a.end()
+    #define F first
+    #define S second
+    using namespace __gnu_pbds;
+    using namespace std;
+    template <typename T>
+    using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+    ll n,q,x,y;
+    string s[100005];
+    map<pll,ll>m;
+    vl a[100005][26];
+    int main()
+    {
+        ios_base::sync_with_stdio(false);
+        cin.tie(0);
+        cout.tie(0);
+        cin>>n>>q;
+        rep(i,1,n+1)
+        {
+        	cin>>s[i];
+        	rep(j,0,sz(s[i]))
+        	a[i][s[i][j]-'a'].pb(j);
+        }
+        while(q--)
+        {
+        	cin>>x>>y;
+        	if(x>y)
+        		swap(x,y);
+        	if(x==y)
+        	{
+        		cout<<"Yes\n";
+        		continue;
+        	}
+        	else if(m[{x,y}])
+        	{
+        		if(m[{x,y}]==1)
+        			cout<<"No\n";
+        		else
+        			cout<<"Yes\n";
+        		continue;
+        	}
+        	ll p=x,q=y;
+        	if(sz(s[p])>sz(s[q]))
+        		swap(p,q);
+        	ll ans=1,r=-1;
+        	rep(i,0,sz(s[p]))
+        	{
+        		auto it=ub(all(a[q][s[p][i]-'a']),r);
+        		if(it==a[q][s[p][i]-'a'].end())
+        		{
+        			ans=0;
+        			break;
+        		}
+        		r=*it;
+        	}
+        	m[{x,y}]=ans+1;
+        	if(ans)
+        		cout<<"Yes\n";
+        	else
+        		cout<<"No\n";
+     
+        }
+    }
+

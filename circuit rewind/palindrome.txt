@@ -1,0 +1,458 @@
+
+
+    /***********Template Starts Here***********/
+    #include <bits/stdc++.h>
+     
+    #define pb push_back
+    #define nl puts ("")
+    #define sp printf ( " " )
+    #define phl printf ( "hello\n" )
+    #define ff first
+    #define ss second
+    #define POPCOUNT __builtin_popcountll
+    #define RIGHTMOST __builtin_ctzll
+    #define LEFTMOST(x) (63-__builtin_clzll((x)))
+    #define MP make_pair
+    #define FOR(i,x,y) for(vlong i = (x) ; i <= (y) ; ++i)
+    #define ROF(i,x,y) for(vlong i = (y) ; i >= (x) ; --i)
+    #define CLR(x,y) memset(x,y,sizeof(x))
+    #define UNIQUE(V) (V).erase(unique((V).begin(),(V).end()),(V).end())
+    #define MIN(a,b) ((a)<(b)?(a):(b))
+    #define MAX(a,b) ((a)>(b)?(a):(b))
+    #define NUMDIGIT(x,y) (((vlong)(log10((x))/log10((y))))+1)
+    #define SQ(x) ((x)*(x))
+    #define ABS(x) ((x)<0?-(x):(x))
+    #define FABS(x) ((x)+eps<0?-(x):(x))
+    #define ALL(x) (x).begin(),(x).end()
+    #define LCM(x,y) (((x)/gcd((x),(y)))*(y))
+    #define SZ(x) ((vlong)(x).size())
+    #define NORM(x) if(x>=mod)x-=mod;
+    #define MOD(x,y) (((x)*(y))%mod)
+    #define ODD(x) (((x)&1)==0?(0):(1))
+     
+    using namespace std;
+     
+    typedef long long vlong;
+    typedef unsigned long long uvlong;
+    typedef pair < vlong, vlong > pll;
+    typedef vector<pll> vll;
+    typedef vector<vlong> vl;
+    using ll = long long;
+     
+    const vlong inf = 2147383647;
+    const double pi = 2 * acos ( 0.0 );
+    const double eps = 1e-9;
+    mt19937 rng(std::chrono::duration_cast<std::chrono::nanoseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count());
+     
+    template<typename S, typename T>
+    void xmin(S&a, T const&b){if(b<a) a=b;}
+    template<typename S, typename T>
+    void xmax(S&a, T const&b){if(b>a) a=b;}
+     
+    #ifdef DEBUG
+         clock_t tStart = clock();
+         #define debug(args...) {dbg,args; cerr<<endl;}
+         #define timeStamp debug ("Execution Time: ", (double)(clock() - tStart)/CLOCKS_PER_SEC)
+         #define bug printf("%d\n",__LINE__);
+     
+    #else
+        #define debug(args...)  // Just strip off all debug tokens
+        #define timeStamp
+    #endif
+     
+    struct debugger{
+        template<typename T> debugger& operator , (const T& v){
+            cerr<<v<<" ";
+            return *this;
+        }
+    }dbg;
+     
+    //int knightDir[8][2] = { {-2,1},{-1,2},{1,2},{2,1},{2,-1},{-1,-2},{1,-2},{-2,-1} };
+    //int dir4[4][2] = {{-1,0},{0,1},{1,0},{0,-1}};
+     
+    inline vlong gcd ( vlong a, vlong b ) {
+        a = ABS ( a ); b = ABS ( b );
+        while ( b ) { a = a % b; swap ( a, b ); } return a;
+    }
+     
+    vlong ext_gcd ( vlong A, vlong B, vlong *X, vlong *Y ){
+        vlong x2, y2, x1, y1, x, y, r2, r1, q, r;
+        x2 = 1; y2 = 0;
+        x1 = 0; y1 = 1;
+        for (r2 = A, r1 = B; r1 != 0; r2 = r1, r1 = r, x2 = x1, y2 = y1, x1 = x, y1 = y ) {
+            q = r2 / r1;
+            r = r2 % r1;
+            x = x2 - (q * x1);
+            y = y2 - (q * y1);
+        }
+        *X = x2; *Y = y2;
+        return r2;
+    }
+     
+    inline vlong modInv ( vlong a, vlong m ) {
+        vlong x, y;
+        ext_gcd( a, m, &x, &y );
+        x %= m;
+        if ( x < 0 ) x += m; //modInv is never negative
+        return x;
+    }
+     
+    inline vlong power ( vlong a, vlong p ) {
+        vlong res = 1, x = a;
+        while ( p ) {
+            if ( p & 1 ) res = ( res * x );
+            x = ( x * x ); p >>= 1;
+        }
+        return res;
+    }
+     
+    inline vlong bigmod ( vlong a, vlong p, vlong m ) {
+        vlong res = 1 % m, x = a % m;
+        while ( p ) {
+            if ( p & 1 ) res = ( res * x ) % m;
+            x = ( x * x ) % m; p >>= 1;
+        }
+        return res;
+    }
+     
+    /***********Template Ends Here***********/
+     
+    signed gen(int T){
+        // mt19937 rng(43151);
+        //auto get_rand = [&](int64_t l, int64_t r){ return uniform_int_distribution<int64_t>(l, r)(rng); };
+        //auto get_double = [&](double l, double r){ return uniform_real_distribution<double>(l, r)(rng); };
+        ofstream o("gen.txt");
+        o << T << "\n";
+        for(int cas=0;cas<T;++cas){
+            o << "\n";
+            /// GEN HERE
+            
+        }
+        o << endl;
+        o.close();
+        return 0;
+    }
+     
+    template<size_t len>
+    class Rolling_Hash_Base : public array<uint64_t, len>{
+    public:
+        static inline uint64_t add(uint64_t a, uint64_t b){
+            a+=b+1;
+            a = (a&mod) + (a>>61);
+            return a-1;
+        }
+        static inline uint64_t sub(uint64_t a, uint64_t b){
+            return add(a, mod-b);
+        }
+        static uint64_t modmul(uint64_t a, uint64_t b){
+            uint64_t l1 = (uint32_t)a, h1 = a>>32, l2 = (uint32_t)b, h2 = b>>32;
+            uint64_t l = l1*l2, m = l1*h2 + l2*h1, h = h1*h2;
+            uint64_t ret = (l&mod) + (l>>61) + (h << 3) + (m >> 29) + (m << 35 >> 3) + 1;
+            ret = (ret & mod) + (ret>>61);
+            ret = (ret & mod) + (ret>>61);
+            return ret-1;
+        }
+        static const array<uint64_t, len> base;
+        static array<uint64_t, len>const& get_base_pow(int exp){
+            assert(exp>=0);
+            static vector<array<uint64_t, len> > base_pow;
+            if((int)base_pow.size() <= exp){
+                if(base_pow.empty()){
+                    base_pow.reserve(1001);
+                    base_pow.emplace_back();
+                    for(auto &e:base_pow.back()) e = 1;
+                }
+                for(int it=base_pow.size(); it<exp+1000;++it){
+                    base_pow.push_back(base_pow.back());
+                    auto &e = base_pow.back();
+                    for(size_t i=0;i<len;++i){
+                        e[i] = modmul(e[i], base[i]);
+                    }
+                }
+            }
+            return base_pow[exp];
+        }
+     
+        static constexpr uint64_t mod = (1ull<<61) - 1;
+     
+        Rolling_Hash_Base() = default;
+        Rolling_Hash_Base(Rolling_Hash_Base const&o) = default;
+        Rolling_Hash_Base& operator=(Rolling_Hash_Base const&o) = default;
+     
+        static array<uint64_t, len> gen_base(){
+            seed_seq seed{(uint32_t) chrono::duration_cast<chrono::nanoseconds>(chrono::high_resolution_clock::now().time_since_epoch()).count(), (uint32_t)random_device()(), (uint32_t)4730921};
+            mt19937 rng(seed);
+            array<uint64_t, len> ret;
+            for(auto &e:ret) e = uniform_int_distribution<uint64_t>(0, mod-1)(rng);
+            return ret;
+        }
+        static vector<Rolling_Hash_Base> hashify(string const&s){
+            vector<Rolling_Hash_Base> ret;
+            ret.reserve(s.size());
+            ret.push_back(Rolling_Hash_Base());
+            for(char const&e:s){
+                ret.push_back(ret.back() + e);
+            }
+            return ret;
+        }
+     
+        template<typename T, typename enable_if<is_integral<T>::value, int>::type = 0>
+        Rolling_Hash_Base& operator+=(T const&o){
+            for(size_t i=0;i<len;++i){
+                (*this)[i] = add(modmul((*this)[i], base[i]), static_cast<uint64_t>(o));
+            }
+            ++length;
+            return *this;
+        }
+        template<typename T, typename enable_if<is_integral<T>::value, int>::type = 0>
+        Rolling_Hash_Base operator+(T const&o)const{
+            Rolling_Hash_Base ret(*this);
+            ret+=o;
+            return ret;
+        }
+     
+        Rolling_Hash_Base& operator+=(const Rolling_Hash_Base &o) {
+            const auto &base_pow = get_base_pow(o.length);
+            for (size_t i = 0; i < len; i++) {
+                (*this)[i] = add(modmul((*this)[i], base_pow[i]), o[i]);
+            }
+            length += o.length;
+            return *this;
+        }
+     
+        Rolling_Hash_Base operator+(const Rolling_Hash_Base &o) const {
+            Rolling_Hash_Base ret(*this);
+            ret += o;
+            return ret;
+        }
+     
+        Rolling_Hash_Base& operator-=(Rolling_Hash_Base const&o){
+            assert(length >= o.length);
+            auto const&base_pow = get_base_pow(length - o.length);
+            //cerr << length << " - " << o.length << "\n";
+            for(size_t i=0;i<len;++i){
+                (*this)[i] = sub((*this)[i], modmul(o[i], base_pow[i]));
+            }
+            length-=o.length;
+            return *this;
+        }
+        Rolling_Hash_Base operator-(Rolling_Hash_Base const&o)const{
+            Rolling_Hash_Base ret(*this);
+            ret-=o;
+            return ret;
+        }
+     
+        size_t length = 0;
+    };
+    template<size_t len>
+    const array<uint64_t, len> Rolling_Hash_Base<len>::base = Rolling_Hash_Base<len>::gen_base();
+     
+    using Rolling_Hash = Rolling_Hash_Base<2>;
+     
+    Rolling_Hash EMPTY = Rolling_Hash :: hashify("").back();
+     
+    class Treap {
+    public:
+    	typedef struct _node {
+    		int cnt;
+    		int prior;
+            Rolling_Hash val, subtree;
+    		_node* l;
+    		_node* r;
+    		_node(char c) :val(Rolling_Hash :: hashify(string(1, c)).back()), subtree(val), l(nullptr), r(nullptr), cnt(1) { prior = (rand() << 16) | rand(); }
+     
+    		void push() {
+    			
+    		}
+    		
+    		void recalc() {
+    			cnt = 1 + Cnt(l) + Cnt(r);
+                subtree = Hash(l) + val + Hash(r);
+    		}
+     
+    		static int Cnt(_node* v) {
+    			if (!v)
+    				return 0;
+    			return v->cnt;
+    		}
+     
+            static Rolling_Hash Hash(_node* v) {
+                return v ? v->subtree : EMPTY;
+            }
+    	}*node;
+     
+    	static int Cnt(node v) {
+    		if (!v)
+    			return 0;
+    		return v->cnt;
+    	}
+     
+    	node root;
+     
+    	size_t Size;
+     
+    	node merge(node l, node r) {
+    		if (!l)
+    			return r;
+    		if (!r)
+    			return l;
+    		if (l->prior < r->prior) {
+    			l->push();
+    			l->r = merge(l->r, r);
+    			l->recalc();
+    			return l;
+    		}
+    		else {
+    			r->push();
+    			r->l = merge(l, r->l);
+    			r->recalc();
+    			return r;
+    		}
+    	}
+     
+    	void split(node v, int idx, node& l, node& r) {
+    		l = r = nullptr;
+    		if (!v)
+    			return;
+    		v->push();
+    		if (Cnt(v->l) < idx) {
+    			l = v;
+    			split(l->r, idx - Cnt(v->l) - 1, l->r, r);
+    			l->recalc();
+    		}
+    		else {
+    			r = v;
+    			split(r->l, idx, l, r->l);
+    			r->recalc();
+    		}
+    	}
+     
+    public:
+    	Treap() {
+    		root = nullptr;
+    		Size = 0;
+    	}
+     
+    	size_t size() const {
+    		return Size;
+    	}
+     
+    	void insert(int idx, int val) { //insert at the idx - position
+    		node l = nullptr, r = nullptr;
+    		split(root, idx, l, r);
+    		node cur_node = new _node(val);
+    		root = merge(merge(l, cur_node), r);
+    		++Size;
+    	}
+     
+    	void erase(int idx) {
+    		node l = nullptr, m = nullptr, r = nullptr;
+    		split(root, idx, l, r);
+    		split(r, 1, m, r);
+    		root = merge(l, r);
+    		--Size;
+    	}
+     
+    	void push_back(int val) {
+    		return insert(Size, val);
+    	}
+    	void push_front(int val) {
+    		return insert(0, val);
+    	}
+     
+        void push_back(Treap &other) {
+            root = merge(root, other.root);
+            Size = Cnt(root);
+        }
+     
+        void push_front(Treap &other) {
+            root = merge(other.root, root);
+            Size = Cnt(root);
+        }
+     
+    	node operator [] (int idx) {
+    		node l = nullptr, m = nullptr, r = nullptr;
+    		split(root, idx, l, r);
+    		split(r, 1, m, r);
+    		if (m == nullptr) {
+    			throw runtime_error("IndexTreapOutOfBound");
+    		}
+    		root = merge(merge(l, m), r);
+    		return m;
+    	}
+    };
+     
+    typedef Treap::node Node;
+     
+    Rolling_Hash data(Treap &treap) {
+        assert(treap.size());
+        return treap.root->subtree;
+    }
+     
+    signed main()
+    {
+        #ifdef LOCAL_RUN
+        freopen("in.txt", "r", stdin);
+        //freopen("out.txt", "w", stdout);
+        cin.tie(0); cout.tie(0); ios_base::sync_with_stdio(false);
+        int TTT; cin >> TTT; 
+    	if(TTT < 0) return gen(-TTT);
+    	while(TTT--){
+        #else
+        cin.tie(0); cout.tie(0); ios_base::sync_with_stdio(false);
+        #endif // LOCAL_RUN
+     
+        ///CODE
+        int n, q;
+        cin >> n >> q;
+        vector<Treap> dir(n), rev(n);
+        int res = 0;
+     
+        auto status = [&](int idx) {
+            return data(dir[idx]) == data(rev[idx]);
+        };
+     
+        FOR(i, 0, n - 1) {
+            string str;
+            cin >> str;
+            for (char c: str) {
+                dir[i].push_back(c);
+                rev[i].push_front(c);
+            }
+            res += status(i);
+        }
+        int pr = 0;
+        FOR(i, 1, q) {
+            int op;
+            cin >> op;
+            if (op == 1) {
+                int a_, b_;
+                cin >> a_ >> b_;
+                int a = a_ ^ pr, b = b_ ^ pr;
+                a--, b--;
+                res -= status(a);
+                res -= status(b);
+                dir[a].push_back(dir[b]);
+                rev[a].push_front(rev[b]);
+                res += status(a);
+            } else {
+                int a_, k_;
+                char c;
+                cin >> a_ >> k_ >> c;
+                int a = a_ ^ pr, k = k_ ^ pr;
+                a--, k--;
+                res -= status(a);
+                dir[a].insert(k, c);
+                rev[a].insert(rev[a].size() - k, c);
+                res += status(a);
+            }
+            cout << res << "\n";
+            pr = res;
+        }
+     
+        #ifdef LOCAL_RUN
+        }
+        #endif // LOCAL_RUN
+        return 0;
+    }
+

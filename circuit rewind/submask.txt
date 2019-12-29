@@ -1,0 +1,110 @@
+    #include<cstdio>
+    #include<iostream>
+    #define ll long long
+    #include<algorithm>
+    using namespace std;
+    int n,m,q,x[10010],y[10010];
+    ll f[30][30],mod=1e9+7,fact[50],inv[50],cnt[30][30],cc[10010],dp[10010],sum;
+    struct ss{
+       int x,y;
+    }p[10010];
+    ll step(ll base,ll p){
+       if(p==0)return 1;
+       ll pom=step(base,p/2);
+       pom=(pom*pom)%mod;
+     
+       if(p%2==1)return (pom*base)%mod;
+       return pom;
+    }
+    ll c(int k,int n){
+       return (((fact[n]*inv[n-k])%mod)*inv[k])%mod;
+    }
+    void calc_1d(){
+     
+       f[0][0]=1;
+     
+       for(int i=1;i<=22;i++){/// steps
+          for(int j=1;j<=22;j++){/// bits{
+             for(int k=1;k<=j;k++)/// stepbits
+                 f[i][j]=(f[i][j]+f[i-1][j-k]*c(k,j))%mod;
+     
+          }
+       }
+     
+    }
+    void calc_count(){
+     
+       for(int i=0;i<=22;i++){/// x y
+     
+          for(int j=0;j<=22;j++){
+     
+            if(i==0 && j==0){cnt[i][j]=1;continue;}
+     
+             for(int k=0;k<=i;k++)
+     
+                for(int u=0;u<=j;u++)
+     
+                   cnt[i][j]=(cnt[i][j]+((((c(u,k+u)*f[k][i])%mod)*f[u][j])%mod))%mod;
+     
+          }
+       }
+     
+    }
+    bool srt(ss a,ss b){
+        return (a.y<b.y)||(a.y==b.y && a.x<b.x);
+    }
+    bool submask(int x,int y){
+       if((x&y)==x)return 1;
+       return 0;
+    }
+    ll count_ways(int x1,int y1,int x2,int y2){
+     
+       return cnt[__builtin_popcount(x2)-__builtin_popcount(x1)][__builtin_popcount(y2)-__builtin_popcount(y1)];
+     
+    }
+    int main(){
+     
+       /// freopen("moj.txt","w",stdout);
+     
+        fact[0]=inv[0]=1;
+        for(int i=1;i<=30;i++){
+            fact[i]=(fact[i-1]*i)%mod;
+            inv[i]=step(fact[i],mod-2);
+        }
+     
+        scanf("%d %d %d",&n,&m,&q);
+        for(int i=1;i<=q;i++)
+            scanf("%d %d",&p[i].x,&p[i].y);
+     
+     
+        calc_1d();
+     
+        calc_count();
+     
+        sort(p+1,p+q+1,srt);
+     
+     
+        for(int i=1;i<=q;i++){
+     
+            cc[i]=count_ways(0,0,p[i].x,p[i].y);
+     
+            for(int j=1;j<i;j++){
+     
+                if(!submask(p[j].x,p[i].x) || !submask(p[j].y,p[i].y))continue;
+     
+                cc[i]=(cc[i]-cc[j]*count_ways(p[j].x,p[j].y,p[i].x,p[i].y))%mod;
+                if(cc[i]<0)cc[i]+=mod;
+     
+            }
+     
+            if(submask(p[i].x,n) && submask(p[i].y,m)){
+                dp[i]=(cc[i]*count_ways(p[i].x,p[i].y,n,m));
+                sum=(sum+dp[i])%mod;
+            }
+     
+        }
+     
+        printf("%lld\n",(((count_ways(0,0,n,m)-sum)%mod)+mod)%mod);
+     
+    return 0;
+    }

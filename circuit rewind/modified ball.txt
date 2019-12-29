@@ -1,0 +1,321 @@
+
+
+    import java.io.*;
+    import java.util.*;
+    import java.math.*;
+    import java.util.concurrent.*;
+    public final class sol
+    {
+        static BufferedReader br=new BufferedReader(new InputStreamReader(System.in));
+    	static FastScanner sc=new FastScanner(br);
+        static PrintWriter out=new PrintWriter(System.out);
+    	static Random rnd=new Random();
+    	static long mod=(long)(998244353);
+    	static int bits,size;
+    	static int nr=3,inv_nr=pow(nr,mod-2,mod),curr_inv;
+    	static int[] rev;
+    	
+    	static int add(long a,long b,long mod)
+    	{
+    		long ret=a+b;
+    		
+    		if(ret>=mod)
+    		{
+    			ret%=mod;
+    		}
+    		
+    		return (int)ret;
+    	}
+    	
+    	static int mul(long a,long b,long mod)
+    	{
+    		long ret=a*b;
+    		
+    		if(ret>=mod)
+    		{
+    			ret%=mod;
+    		}
+    		
+    		return (int)ret;
+    	}
+    	
+    	static int pow(long a,long b,long mod)
+    	{
+    		long x=1,y=a;
+    		
+    		while(b>0)
+    		{	
+    			if(b%2==1)
+    			{
+    				x=mul(x,y,mod);
+    			}
+    			
+    			y=mul(y,y,mod);b=b/2;
+    		}
+    		
+    		return add(x,0,mod);
+    	}
+    	
+    	static int get(int p)
+    	{
+    		int tot=p-1;
+    		
+    		List<Integer> list=new ArrayList<>();
+    		
+    		for(int i=2;i<=tot;i++)
+    		{
+    			int ctr=0;
+    			
+    			while(tot%i==0)
+    			{
+    				tot/=i;ctr++;
+    			}
+    			
+    			if(ctr>0)
+    			{
+    				list.add(i);
+    			}
+    		}
+    		
+    		int ret=-1;tot=p-1;
+    		
+    		for(int i=2;i<=tot;i++)
+    		{
+    			boolean now=true;
+    			
+    			for(int x:list)
+    			{
+    				int curr=pow(i,tot/x,p);
+    				
+    				if(curr==1)
+    				{
+    					now=false;break;
+    				}
+    			}
+    			
+    			if(now)
+    			{
+    				return i;
+    			}
+    		}
+    		
+    		return (-1);
+    	}
+    	
+    	static int reverse(int num)
+    	{
+    		int ret=0;// depends on bits variable set globally..
+    		
+    		for(int i=0,j=bits-1;i<bits;i++,j--)
+    		{
+    			if((num&(1<<i))!=0)
+    			{
+    				ret|=(1<<j);
+    			}
+    		}
+    		
+    		return ret;
+    	}
+    	
+    	static int[] pow(int[] y,int k,int p)
+    	{
+    		int[] x=new int[p-1];x[0]=1;
+    		
+    		while(k>0)
+    		{
+    			if(k%2==1)
+    			{
+    				x=poly_mul(x,y);
+    				
+    				x=clean(x,p-1);
+    			}
+    			
+    			y=poly_mul(y,y);k=k/2;
+    			
+    			y=clean(y,p-1);
+    		}
+    		
+    		return x;
+    	}
+    	
+    	static int[] poly_mul(int[] a,int[] b)
+    	{
+    		int[] fa=new int[size],fb=new int[size];
+    		
+    		for(int i=0;i<a.length;i++)
+    		{
+    			fa[i]=a[i];
+    		}
+    		
+    		for(int i=0;i<b.length;i++)
+    		{
+    			fb[i]=b[i];
+    		}
+    		
+    		fa=fft(fa,false);fb=fft(fb,false);
+    		
+    		for(int i=0;i<size;i++)
+    		{
+    			fa[i]=mul(fa[i],fb[i],mod);
+    		}
+    		
+    		fa=fft(fa,true);
+    		
+    		for(int i=0;i<size;i++)
+    		{
+    			fa[i]=mul(fa[i],curr_inv,mod);
+    		}
+    		
+    		return fa;
+    	}
+    	
+    	static void pre(int p)
+    	{
+    		size=1;int tot=(2*(p-1))+1;
+    		
+    		while(size<tot)
+    		{
+    			size*=2;
+    		}
+    		
+    		bits=(int)(Math.log(size)/Math.log(2.0));
+    		
+    		rev=new int[size];
+    		
+    		for(int i=0;i<size;i++)
+    		{
+    			rev[i]=reverse(i);
+    		}
+    		
+    		curr_inv=pow(size,mod-2,mod);
+    	}
+    	
+    	static int[] fft(int[] a,boolean invert)
+    	{
+    		int n=a.length;
+    		
+    		int[] ret=new int[n];
+    		
+    		for(int i=0;i<n;i++)
+    		{
+    			ret[i]=a[rev[i]];
+    		}
+    		
+    		for(int len=2;len<=n;len*=2)
+    		{
+    			int c=(int)(mod-1)/len,mul_factor=pow(invert?inv_nr:nr,c,mod),half=len/2;
+    			
+    			int[] poly=new int[n];
+    			
+    			for(int j=0;j<n;j+=len)
+    			{
+    				int now=1;
+    				
+    				for(int k=j;k<j+len;k++)
+    				{
+    					int idx=(j+(k%half));
+    					
+    					poly[k]=add(ret[idx],mul(now,ret[idx+half],mod),mod);
+    					
+    					now=mul(now,mul_factor,mod);
+    				}
+    			}
+    			
+    			ret=poly;
+    		}
+    		
+    		return ret;
+    	}
+    	
+    	static int[] clean(int[] arr,int zz)
+    	{
+    		int[] ret=new int[zz];
+    		
+    		for(int i=0;i<arr.length;i++)
+    		{
+    			ret[i%zz]=add(ret[i%zz],arr[i],mod);
+    		}
+    		
+    		return ret;
+    	}
+    	
+        public static void main(String args[]) throws Exception
+        {
+    		int n=sc.nextInt(),p=sc.nextInt(),k=sc.nextInt(),r=get(p);
+    		
+    		pre(p);
+    		
+    	//	System.out.println(r);
+    		
+    		int[] a=new int[n],cnt=new int[p],poly=new int[p-1];
+    		
+    		for(int i=0;i<n;i++)
+    		{
+    			a[i]=sc.nextInt();
+    			
+    			cnt[a[i]]++;
+    		}
+    		
+    		int now=1,ctr=0;
+    		
+    		while(ctr<p-1)
+    		{
+    			poly[ctr]=cnt[now];
+    			
+    			now=mul(now,r,p);
+    			
+    			ctr++;
+    		}
+    		
+    	//	System.out.println("hello");
+    		
+    		poly=pow(poly,k,p);
+    		
+    		int num=0,den=pow(n,k,mod),inv_den=pow(den,mod-2,mod);
+    		
+    	//	out.println(Arrays.toString(poly));
+    		
+    		for(int i=0;i<p-1;i++)
+    		{
+    			now=pow(r,i,p);
+    			
+    			int mul=mul(poly[i],now,mod);
+    			
+    			num=add(num,mul,mod);
+    		}
+    		
+    		int res=mul(num,inv_den,mod);
+    		
+    		out.println(res);out.close();
+        }
+    }
+    class FastScanner
+    {
+        BufferedReader in;
+        StringTokenizer st;
+        public FastScanner(BufferedReader in) {
+            this.in = in;
+        }
+    	
+        public String nextToken() throws Exception {
+            while (st == null || !st.hasMoreTokens()) {
+                st = new StringTokenizer(in.readLine());
+            }
+            return st.nextToken();
+        }
+    	
+    	public String next() throws Exception {
+    		return nextToken().toString();
+    	}
+    	
+        public int nextInt() throws Exception {
+            return Integer.parseInt(nextToken());
+        }
+        public long nextLong() throws Exception {
+            return Long.parseLong(nextToken());
+        }
+        public double nextDouble() throws Exception {
+            return Double.parseDouble(nextToken());
+        }
+    }
+

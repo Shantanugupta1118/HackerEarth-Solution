@@ -1,0 +1,100 @@
+
+
+    //reference from https://www.hackerearth.com/submission/21064403/
+     
+    #include <stdio.h>
+    #include <iostream>
+    #include <map>
+    #include <vector>
+    #include <time.h>
+    #include <utility>
+    #include <cmath>
+    #include <set>
+    #include <cstring>
+    #include <queue>
+    #include <algorithm>
+    using namespace std;
+     
+    #define ll long long int
+    #define ipair pair<ll, ll>
+    #define mod 1000000007
+    #define pb push_back
+    #define mp make_pair
+    #define ff first
+    #define ss second
+    #define rep(i,n) for(i=0;i<n;i++)
+    #define fu(i,a,n) for(i=a;i<=n;i++)
+    #define fd(i,n,a) for(i=n;i>=a;i--)
+    #define gi(n) scanf("%d",&n)
+    #define gl(n) scanf("%lld",&n)
+    #define pl(n) printf("%lld",n)
+    #define pi(n) printf("%d",n)
+    #define pp printf(" ")
+    #define pn printf("\n")
+    #define MAX 100002
+    #define LN 18
+    #define N 256
+     
+    ll dp[MAX][N];
+     
+    vector<ll> FWHT(vector<ll> P) {
+    	for(int len = 1; 2 * len <= N; len <<= 1) {
+    		for(int i = 0; i < N; i+=2 * len) {
+    			for(int j = 0; j < len; j++) {
+    				ll u = P[i + j];
+    				ll v = P[i + len + j];
+    				P[i + j] = v;
+    				P[i + len + j] = u + v;
+    			}
+    		}
+    	}
+    	return P;
+    }
+    vector<ll> IFHWT(vector<ll> P) {
+    	for(int len = 1; 2 * len <= N; len <<= 1) {
+    		for(int i = 0; i < N; i+=2 * len) {
+    			for(int j = 0; j < len; j++) {
+    				ll u = P[i + j];
+    				ll v = P[i + len + j];
+    				P[i + j] = v - u;
+    				P[i + len + j] = u;
+    			}
+    		}
+    	}	
+    	return P;
+    }
+    vector<ll> multiply(vector<ll> &a) {
+    	a = FWHT(a);
+    	int i;
+    	rep(i, a.size()) {
+    		a[i] = a[i] * a[i] * a[i];
+    	}
+    	return IFHWT(a);
+    }
+    int main() {
+    	int n;
+    	gi(n);
+    	int i, j, k;
+    	fu(i, 1, n) {
+    		rep(j, N) {
+    			dp[i][j] = dp[i - 1][j];
+    		}
+    		gi(k);
+    		dp[i][k]++;
+    	}
+    	int m;
+    	gi(m);
+    	while(m--) {
+    		int l, r, x;
+    		scanf("%d %d %d", &l, &r, &x);
+    		vector<ll> v;
+    		rep(i, N) {
+    			v.pb(dp[r][i] - dp[l - 1][i]);
+    		}
+    		vector<ll> ans = multiply(v);
+    		pl(ans[x]%mod);
+    		pn;
+    	}
+    	return 0;
+    }
+

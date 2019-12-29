@@ -1,0 +1,73 @@
+
+
+    #include <bits/stdc++.h>
+    using namespace std;
+    #define pb push_back
+    typedef long long ll;
+    typedef pair<int, int> ii;
+     
+    int n;
+    ll k;
+    const int maxn = 2e5 + 5;
+    ll c[maxn];
+    ll cnt(int a, int b)
+    {
+        memset(c, 0, sizeof c);
+        for(int i = 2; i<= n; i++)
+            c[i] = (ll) min(1LL*(i-1), (1LL* i*a/b));
+        ll res = 0;
+        for(int i = 2; i<= n; i++)
+        {
+            for(int j = 2*i; j<= n; j+=i)
+            {
+                c[j]-=c[i];
+            }
+            res += c[i];
+        }
+        return res;
+    }
+    struct frac
+    {
+        int a, b;
+        frac(){}
+        frac(int _a, int _b)
+        {
+            a = _a;
+            b = _b;
+        }
+        bool operator < (frac other) const
+        {
+            return 1LL*a*other.b< 1LL*b*other.a;
+        }
+    };
+    int main()
+    {
+        cin >> n >> k;
+        int lo = 1, hi = n;
+        while(lo< hi)
+        {
+            int mid = (lo+hi)/2;
+            if(cnt(mid, n)>= k) hi = mid;
+            else lo = mid+1;
+        }
+        lo--;
+        ll now = cnt(lo, n);
+        vector<frac> foo;
+        for(int i = 1; i< n; i++)
+        {
+            double left = ceil(1.00*i*lo/n);
+            double right = floor(1.00*i*(lo+1)/n);
+            ll L = (ll) round(left);
+            ll R = (ll) round(right);
+            if(__gcd(L, 1LL*i) != 1) continue;
+            if(L == R) foo.pb(frac(L, i));
+        }
+        int x = __gcd(lo, n);
+        if(x == 1) foo.pb(frac(lo/x, n/x));
+        int y = __gcd(lo+1, n);
+        if(y == 1) foo.pb(frac((lo+1)/y, n/y));
+        sort(foo.begin(), foo.end());
+        k -= now;
+        cout<<foo[k-1].a<<"/"<<foo[k-1].b<<"\n";
+    }
+

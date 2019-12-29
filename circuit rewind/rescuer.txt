@@ -1,0 +1,50 @@
+
+
+    /*
+    // Sample code to perform I/O:
+     
+    #include <iostream>
+     
+    using namespace std;
+     
+    int main() {
+    	int num;
+    	cin >> num;										// Reading input from STDIN
+    	cout << "Input number is " << num << endl;		// Writing output to STDOUT
+    }
+     
+    // Warning: Printing unwanted or ill-formatted data to output will cause the test cases to fail
+    */
+     
+    // Write your code here
+    #include <bits/stdc++.h>
+    #include <cmath>
+    using namespace std;
+     
+    long double x1,x2,y_1,y_2,v1,v2,eps=1e-9;
+    long double func(long double x)
+    {
+        return sqrt(pow(x-x1,2)+y_1*y_1)/v1 + sqrt(pow(x-x2,2)+y_2*y_2)/v2;
+    }
+    int main()
+    {
+        int N;
+        cin>>N;
+        while (N--)
+        {
+            cin>>x1>>y_1>>x2>>y_2>>v1>>v2;
+            long double l=min(x1,x2),r=max(x1,x2),l1,l2;
+            while ((r-l)>eps)
+            {
+                l1=l+(r-l)/3;
+                l2=r-(r-l)/3;
+                if (func(l1)<func(l2))
+                r=l2;
+                else
+                l=l1;
+            }
+            cout<<fixed<<setprecision(5)<<(func(l))<<"\n";
+        }
+        return 0;
+    }
+

@@ -1,0 +1,59 @@
+
+
+    #include <vector>
+    #include <iostream>
+     
+    using namespace std;
+    typedef long long LL;
+    LL MAX = 1LL<<50LL;
+    LL len[200007];
+    LL N, M;
+    string s[100007];
+    vector<int> nxt[200007];
+    vector<LL>   ln[200007];
+    int Prev[200007];
+    int main() {
+      cin >> N >> M;
+      for (int i = 1; i <= N; ++i) { cin >> s[i]; len[i] = s[i].size(); nxt[i].push_back(i); ln[i].push_back(len[i]); }
+      int idx = N; 
+      for (int i = 1; i <= M; ++i) {
+        ++idx; 
+        int k; cin >> k; nxt[idx].reserve(k); ln[idx].reserve(k);
+        for (int j = 1; j <= k; ++j) {
+          int x; cin >> x;
+          if (len[idx] < MAX) {
+            len[idx] += len[x];
+            nxt[idx].push_back(x);
+            ln[idx].push_back(len[x]);
+          }
+        
+        }
+        for (int j = 1; j < ln[idx].size(); ++j) ln[idx][j] += ln[idx][j-1];
+      }  
+      for (int i = 1; i <= N; ++i) Prev[i] = i;
+      for (int i = N + 1; i <= N + M; ++i) {
+        if (nxt[i].size() == 1) Prev[i] = Prev[nxt[i][0]];
+        else Prev[i] = i;
+      }
+      int Q; cin >> Q;
+      while (Q--) {
+        LL i, p; cin >> i >> p;
+        i = Prev[i];
+        while (i > N) {
+          int a = 0, b = nxt[i].size() - 1;
+          int i2 = -1;
+          while (a <= b) { 
+            int mid = (a + b) / 2; 
+            if (ln[i][mid] >= p) { i2 = mid; b = mid - 1; }
+            else a = mid + 1;
+          }
+          if (i2 > 0) p -= ln[i][i2-1];
+          i = nxt[i][i2];
+          i = Prev[i];
+        }
+        cout << s[i][p-1];
+      }
+      cout << '\n';
+      return 0;
+    }
+

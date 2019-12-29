@@ -1,0 +1,210 @@
+
+
+    #include<bits/stdc++.h>
+    #define all(v) (v).begin(),(v).end()
+    #define pb push_back
+    #define ppb pop_back
+    #define mp make_pair
+    #define ri(x) scanf("%d",&(x))
+    #define ri2(x,y) scanf("%d %d",&(x),&(y))
+    #define ri3(x,y,z) scanf("%d %d %d",&(x),&(y),&(z))
+    #define rll(x) scanf("%lld",&(x))
+    #define rll2(x,y) scanf("%lld %lld",&(x),&(y))
+    #define rll3(x,y,z) scanf("%lld %lld %lld",&(x),&(y),&(z))
+    #define gc(x) ((x) = getchar())
+    using namespace::std;
+     
+    const long double PI = acos(-1);
+    const long long MOD = 1000000000 +7;
+     
+    typedef long long ll;
+    typedef pair<ll,ll> pll;
+    typedef pair<ll,pll> tll;
+    typedef pair<int,int> ii;
+    typedef pair<int,ii> iii;
+    typedef vector<int> vi;
+    typedef vector<ii> vii;
+    typedef vector<iii> viii;
+    typedef vector<ll> vll;
+    typedef vector<pll> vpll;
+    typedef vector<tll> vtll;
+    typedef vector<string> vs;
+    typedef set<int> si;
+    typedef set<ii> sii;
+    typedef set<iii> siii;
+     
+    ll gcd(ll a, ll b){ return b==0?a:gcd(b,a%b);}
+     
+    ll add(ll a, ll b, ll m = MOD){
+    	if(a >= m) a %= m;
+    	if(b >= m) b %= m;
+    	if(a < 0) a += m;
+    	if(b < 0) b += m;
+    	ll res = a+b;
+    	if(res >= m or res <= -m) res %= m;
+    	if(res < 0) res += m;
+    	return res;
+    }
+     
+    ll mul(ll a, ll b, ll m = MOD){
+    	if(a >= m) a %= m;
+    	if(b >= m) b %= m;
+    	if(a < 0) a += m;
+    	if(b < 0) b += m;
+    	ll res = a*b;
+    	if(res >= m or res <= -m) res %= m;
+    	if(res < 0) res += m;
+    	return res;
+    }
+     
+    ll pow_mod(ll a, ll b, ll m = MOD){
+    	ll res = 1LL;
+    	a = a%m;
+    	while(b){
+    		if(b&1) res = mul(res,a,m);
+    		b >>= 1;
+    		a = mul(a,a,m);
+    	}
+    	return res;
+    }
+     
+    ll fastexp(ll a, ll b){
+    	ll res = 1LL;
+    	while(b){
+    		if(b&1) res = res*a;
+    		b >>= 1;
+    		a *= a;
+    	}
+    	return res;
+    }
+     
+    int gcdExtendido(int a, int b, int *x, int *y){
+    	if(a == 0){
+    		*x = 0;
+    		*y = 1;
+    		return b;
+    	}
+    	int x1, y1;
+    	int gcd = gcdExtendido(b%a,a,&x1,&y1);
+    	
+    	*x = y1-(b/a)*x1;
+    	*y = x1;
+    	return gcd;
+    }
+     
+    int modInverso(int a, int m){
+    	int x, y;
+    	int g = gcdExtendido(a,m,&x,&y);
+    	if(g!=1) return -1;
+    	else return (x%m + m)%m;
+    }
+     
+    /****************************************
+    *************P*L*A*N*T*I*L*L*A************
+    *****************************************/
+     
+    const int N = 200000+5;
+    const int LOG = 20;
+     
+    int n, m;
+    vii I[N];
+    ll ans[N];
+    ll st[4*N];
+    ll lazy[4*N];
+    int ST[N][LOG];
+    queue<int> Q[N];
+     
+    int queryST(int L, int R){
+    	int d = R - L + 1;
+    	int k = 31 - __builtin_clz(d);
+    	int dis = 1<<k;
+    	return gcd(ST[L][k],ST[R-dis+1][k]);
+    }
+     
+    void getIntervals(int i){
+    	int L = i;
+    	int R = i;
+    	while(L < n){
+    		int lo = L, hi = n-1;
+    		while(lo < hi){
+    			int mi = lo + (hi-lo+1)/2;
+    			if(queryST(i,mi) == queryST(i,L)) lo = mi;
+    			else hi = mi-1;
+    		}
+    		R = lo;
+    		I[i].emplace_back(mp(L,R));
+    		L = R + 1;
+    	}
+    }
+     
+    void push(int pos, int l, int r){
+    	if(lazy[pos]){
+    		st[pos] += lazy[pos] * (r-l+1);
+    		if(l < r){
+    			lazy[2*pos] += lazy[pos];
+    			lazy[2*pos+1] += lazy[pos];
+    		}
+    		lazy[pos] = 0LL;
+    	}
+    }
+     
+    void update(int x, int y, int z, int pos = 1, int l = 0, int r = n-1){
+    	push(pos,l,r);
+    	if(y < l or r < x or x > y) return;
+    	if(x <= l and r <= y){
+    		lazy[pos] += z;
+    		push(pos,l,r);
+    		return;
+    	}
+    	int mi = (l+r)/2;
+    	update(x,y,z,2*pos,l,mi);
+    	update(x,y,z,2*pos+1,mi+1,r);
+    	st[pos] = st[2*pos] + st[2*pos+1];
+    }
+     
+    ll query(int x, int y, int pos = 1, int l = 0, int r = n-1){
+    	push(pos,l,r);
+    	if(y < l or r < x or x > y) return 0LL;
+    	if(x <= l and r <= y) return st[pos];
+    	int mi = (l+r)/2;
+    	return query(x,y,2*pos,l,mi) + query(x,y,2*pos+1,mi+1,r);
+    }
+     
+    void updateIntervals(int l){
+    	for(int i=0; i<I[l].size(); i++){
+    		int val = queryST(l,I[l][i].first);
+    		update(I[l][i].first,I[l][i].second,val);
+    	}
+    }
+     
+    int main(){
+    	ri2(n,m);
+    	int l, r;
+    	for(int i=0; i<n; i++) ri(ST[i][0]);
+    	for(int i=0; i<m; i++){
+    		ri2(l,r);
+    		l--; r--;
+    		Q[l].emplace(i);
+    		Q[l].emplace(r);
+    	}
+    	for(int d = 1; 1<<d <= n; d++){
+    		int dis = 1<<(d-1);
+    		for(int i = 0; i + 2*dis - 1 < n; i++){
+    			ST[i][d] = gcd(ST[i][d-1],ST[i+dis][d-1]);
+    		}
+    	}
+    	for(int i=0; i<n; i++) getIntervals(i);
+    	for(int i=n-1; i>=0; i--){
+    		updateIntervals(i);
+    		while(!Q[i].empty()){
+    			int id = Q[i].front(); Q[i].pop();
+    			int r = Q[i].front(); Q[i].pop();
+    			ans[id] = query(i,r);
+    		}
+    	}
+    	for(int i=0; i<m; i++){
+    		printf("%lld\n",ans[i]);
+    	}
+    	return 0;
+    }
+

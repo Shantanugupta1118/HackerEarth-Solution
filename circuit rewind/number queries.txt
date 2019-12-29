@@ -1,0 +1,185 @@
+
+
+    #include<iostream>
+    #include<vector>
+    #include<algorithm>
+    #include<cstring>
+    #include<cstdio>
+    #include<cmath>
+    #include<cstdlib>
+    #include<ctime>
+    #include<queue>
+    #include<set>
+    #include<map>
+    #include<stack>
+    #include<bitset>
+    #include<assert.h>
+     
+    #define pb push_back
+    #define mp make_pair
+    #define fi first
+    #define se second
+     
+    using namespace std;
+     
+    template<typename T>inline bool upmin(T &x,T y) { return y<x?x=y,1:0; }
+    template<typename T>inline bool upmax(T &x,T y) { return x<y?x=y,1:0; }
+     
+    typedef unsigned int u32;
+    typedef long long LL;
+    typedef unsigned long long ULL;
+    typedef long double lod;
+    typedef pair<int,int> PR;
+    typedef vector<int> VI;
+     
+    const lod pi=acos(-1);
+    const int oo=1<<30;
+    const LL OO=1e18;
+    const int mod=1e9+7;
+     
+    const int N=2e5+100;
+     
+    int qpow(int x,int y) {
+    	int ans=1;
+    	while (y) {
+    		if (y&1) ans=1LL*ans*x%mod;
+    		x=1LL*x*x%mod;y>>=1;
+    	}
+    	return ans;
+    }
+     
+    int gi() {
+    	int w=0;bool q=1;char c=getchar();
+    	while ((c<'0'||c>'9') && c!='-') c=getchar();
+    	if (c=='-') q=0,c=getchar();
+    	while (c>='0'&&c <= '9') w=w*10+c-'0',c=getchar();
+    	return q? w:-w;
+    }
+     
+    namespace io {
+    	const int L=(1<<21)+1;
+    	char ibuf[L],*iS,*iT,obuf[L],*oS=obuf,*oT=obuf+L-1,c,st[55];int f,tp;
+    #define gc() (iS==iT?(iT=(iS=ibuf)+fread(ibuf,1,L,stdin),(iS==iT?EOF:*iS++)):*iS++)
+    	inline void flush() {
+    		fwrite(obuf,1,oS-obuf,stdout);
+    		oS=obuf;
+    	}
+    	inline void putc(char x) { *oS++=x; if (oS==oT) flush(); }
+    	template<class I> inline void gi(I&x) {
+    		for (f=1,c=gc();c<'0'||c>'9';c=gc()) if (c=='-') f=-1;
+    		for (x=0;c<='9'&&c>='0';c=gc()) x=x*10+(c&15); x*=f;
+    	}
+    	template<class I> inline void print(I x) {
+    		if (!x) putc('0');
+    		if (x<0) putc('-'),x=-x;
+    		while (x) st[++tp]=x%10+'0',x/=10;
+    		while (tp) putc(st[tp--]);
+    	}
+    	inline void gs(char*s, int&l) {
+    		for (c=gc();c<'a'||c>'z';c=gc());
+    		for (l=0;c<='z'&&c>='a';c=gc()) s[l++]=c;
+    		s[l]=0;
+    	}
+    	inline void ps(const char*s) { for (int i=0,n=strlen(s);i<n;i++) putc(s[i]); }
+    	struct IOFLUSHER{ ~IOFLUSHER() { flush(); } } _ioflusher_;
+    };
+    using io::putc;
+    using io::gi;
+    using io::gs;
+    using io::ps;
+    using io::print;
+     
+    int lc[N],rc[N],key[N],siz[N],rt;
+    LL v[N],tag[N];
+     
+    void pushdown(int k) {
+    	if (tag[k]) {
+    		v[k]+=tag[k];
+    		tag[lc[k]]+=tag[k];
+    		tag[rc[k]]+=tag[k];
+    		tag[k]=0;
+    	}
+    }
+    void update(int k) {
+    	siz[k]=siz[lc[k]]+siz[rc[k]]+1;
+    }
+    int merge(int x,int y) {
+    	if (!x||!y) return x|y;
+    	if (key[x]>key[y]) {
+    		pushdown(x);
+    		rc[x]=merge(rc[x],y);
+    		update(x);
+    		return x;
+    	} else {
+    		pushdown(y);
+    		lc[y]=merge(x,lc[y]);
+    		update(y);
+    		return y;
+    	}
+    }
+    PR split(int k,LL t) {
+    	if (!k) return mp(0,0);
+    	pushdown(k);
+    	PR p;
+    	if (v[k]<=t) {
+    		p=split(rc[k],t);
+    		rc[k]=p.fi,p.fi=k;
+    	} else {
+    		p=split(lc[k],t);
+    		lc[k]=p.se,p.se=k;
+    	}
+    	update(k);
+    	return p;
+    }
+    LL kth(int k,int s) {
+    	pushdown(k);
+    	if (s<=siz[lc[k]])
+    		return kth(lc[k],s);
+    	if (s==siz[lc[k]]+1)
+    		return v[k];
+    	return kth(rc[k],s-siz[lc[k]]-1);
+    }
+    void insert(int k) {
+    	PR p=split(rt,v[k]);
+    	rt=merge(merge(p.fi,k),p.se);
+    }
+    void dfs(int k) {
+    	if (!k) return;
+    	pushdown(k);
+    	dfs(lc[k]);
+    	dfs(rc[k]);
+    	lc[k]=rc[k]=0,siz[k]=1;
+    	insert(k);
+    }
+    int main()
+    {
+    #ifndef ONLINE_JUDGE
+    	freopen("P4.in","r",stdin);
+    	freopen("P4.out","w",stdout);
+    #endif
+    	int n,m,i,op,k;PR p;LL x,L,R;
+    	gi(n),gi(m);
+    	for (i=1;i<=n;i++) {
+    		gi(v[i]),key[i]=rand(),siz[i]=1;
+    		insert(i);
+    	}
+    	while (m--) {
+    		gi(op);
+    		if (op==1)
+    			gi(x),L=x,R=x*2-1;
+    		else
+    			gi(L),gi(R),gi(x);
+    		p=split(rt,L-1);
+    		k=p.fi,p=split(p.se,R);
+    		if (op==1) {
+    			tag[p.fi]-=x,tag[p.se]-=x;
+    			rt=merge(k,p.se);
+    			dfs(p.fi);
+    		} else {
+    			print(x<=siz[p.fi]?kth(p.fi,x):L);putc('\n');
+    			rt=merge(k,merge(p.fi,p.se));
+    		}
+    	}
+    	return 0;
+    }
+

@@ -1,0 +1,119 @@
+
+
+    #define _CRT_SECURE_NO_WARNINGS
+    #include <cstdio>
+    #include <iostream>
+    #include <stdlib.h>
+    #include <string.h>
+    #include <memory.h>
+    #define _USE_MATH_DEFINES
+    #include <math.h>
+    #include <algorithm>
+    #include <vector>
+    #include <map>
+    #include <set>
+    #include <string>
+    #include <queue>
+    #include <ctime>
+    #include <complex>
+     
+    // Site: www.hackerearth.com
+    // Competition: September Circuit 19
+    // Problem : Friends in a town
+    // Problem Code: Problem 6
+    // by lboris
+     
+    /*
+    */
+     
+    typedef unsigned long long llu;
+    typedef long long int lls;
+    typedef unsigned int uint;
+    typedef unsigned char byte;
+    #define f(i,s,e) for(int i=s;i<e;++i)
+    #define fe(i,s,e) for(int i=s;i<=e;++i)
+    #define fie(i,s,e,d) for(int i=s;i<=e;i+=d)
+    typedef std::vector<int> ivector;
+    typedef std::pair<int, int> ipair;
+    typedef std::vector<ipair> ipvector;
+    typedef std::pair<short, short> spair;
+    typedef std::vector<spair> spvector;
+    typedef std::map<int, int> iimap;
+    int N, M, K, Q;
+     
+    ivector  G[100000];
+    ipvector D[100000];
+    int R[100000];
+     
+     
+    int getsumv(ipvector& vv, int d) {
+    	if (vv.size() == 0)return 0;
+    	if (vv[0].first > d)return 0;
+    	if (vv.back().first <= d)return vv.back().second;
+    	int l = 0;
+    	int r = (int)vv.size() - 1;
+    	while (r - l > 1) {
+    		int m = (l + r) >> 1;
+    		if (vv[m].first < d) l = m;
+    		else if (vv[m].first > d) r = m;
+    		else return vv[m].second;
+    	}
+    	return vv[l].second;
+    };
+     
+    int getsum(int n, int d) {
+    	int s = 0;
+    	f(i, 0, G[n].size()) {
+    		s += getsumv(D[G[n][i]], d);
+    		if (s > K)return K+1;
+    	}
+    	return s;
+    }
+     
+    int solvex(int n) {
+    	int l = 0;
+    	int r = Q-1;
+    	llu sl = getsum(n, l);
+    	if (sl >= K)return l + 1;
+    	llu sr = getsum(n, r);
+    	if (sr < K)return -1;
+    	while (r - l > 1) {
+    		int m = (r + l) >> 1;
+    		llu sm = getsum(n, m);
+    		if (sm < K)l = m;
+    		else r = m;
+    	}
+    	return r + 1;
+    }
+     
+    void solve() {
+    	f(i, 0, N) {
+    		R[i] = solvex(i);
+    	}
+    }
+    int main(int argc, char **argv) {
+    	clock_t start_tm = clock();
+    	if (argc > 1) freopen(argv[1], "r", stdin);
+    	scanf("%d %d %d", &N,&M,&K);
+    	f(i, 0, M) {
+    		int x, y;
+    		scanf("%d %d", &x, &y); x -= 1; y -= 1;
+    		G[x].push_back(y); G[y].push_back(x);
+    	}
+    	scanf("%d", &Q);
+    	f(i, 0, Q) {
+    		int x;
+    		int y;
+    		scanf("%d %d", &x, &y); x -= 1;
+    		if (y != 0) {
+    			if (D[x].size() > 0) y += D[x].back().second;
+    			if (y > K) y = K + 1;
+    			D[x].push_back(std::make_pair(i, y));
+    		}
+    	}
+    	solve();
+    	f(i, 0, N)printf((i == N - 1) ? "%d\n" : "%d ", R[i]);
+    	fprintf(stderr, "Time: %lf\n", (double)(clock() - start_tm) / (double)CLOCKS_PER_SEC);
+    	return 0;
+    }
+

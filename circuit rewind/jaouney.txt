@@ -1,0 +1,165 @@
+
+
+    #include <iostream>
+    #include <cstdio>
+    #include <vector>
+    #include <cstring>
+    #define pb push_back
+    using namespace std;
+    const int N=3e5+5;
+    const long long INF=1e12;
+     
+    int n,m;
+    long long l[N],c[N],p[N];
+     
+    long long cost[N]; /// cost to finish the journey if we are at city i if we changed battery at i
+    long long prefix[N]; /// sum of Ls up to i
+     
+    struct seg_tree{
+     
+      long long val[4*N];
+     
+     
+      long long query(int pos,int low,int high,int l,int r)
+      {
+          if(l>high || r<low)
+            return INF;
+          if(l<=low && r>=high)
+            return val[pos];
+     
+          int mid=(low+high)/2;
+     
+          return min(query(pos*2,low,mid,l,r),query(pos*2+1,mid+1,high,l,r));
+      }
+     
+      void update(int pos,int low,int high,int l,int r,long long d)
+      {
+          if(l>high || r<low)
+            return;
+          if(l<=low && r>=high)
+          {
+              val[pos]=d;
+     
+              return;
+          }
+     
+          int mid=(low+high)/2;
+     
+          update(pos*2,low,mid,l,r,d);
+          update(pos*2+1,mid+1,high,l,r,d);
+     
+          val[pos]=min(val[pos*2],val[pos*2+1]);
+     
+      }
+     
+     
+    }seg;
+     
+     
+    void calc_cost()
+    {
+        int i;
+        int low,high,mid;
+        int rem;
+     
+        cost[n]=0;
+        seg.update(1,1,n,n,n,0);
+     
+        for(i=n-1;i>=1;i--)
+        {
+            low=i+1;
+            high=n;
+     
+            rem=-1;
+     
+            while(low<=high)
+            {
+                mid=(low+high)/2;
+     
+                if(prefix[mid-1] - prefix[i-1] <= c[i]) /// can go to mid on battery
+                {
+                    rem=mid;
+     
+                    low=mid+1;
+                }
+                else
+                    high=mid-1;
+            }
+     
+            if(rem == -1)
+                cost[i]=INF;
+            else
+                cost[i]=p[i] + seg.query(1,1,n,i+1,rem);
+     
+     
+            seg.update(1,1,n,i,i,cost[i]);
+        }
+     
+     
+    }
+     
+    long long ans;
+     
+    int main()
+    {
+        int i;
+        long long x;
+     
+        cin>>n>>m;
+        for(i=1;i<n;i++)
+        {
+            scanf("%lld", &l[i]);
+     
+            prefix[i] = prefix[i-1] + l[i];
+        }
+        for(i=1;i<n;i++)
+        {
+            scanf("%lld", &c[i]);
+        }
+        for(i=1;i<n;i++)
+        {
+            scanf("%lld", &p[i]);
+        }
+     
+        calc_cost();
+     
+     
+        int low,high,mid;
+        int rem;
+     
+        for(i=1;i<=m;i++)
+        {
+            scanf("%lld", &x);
+     
+            low=1;
+            high=n;
+     
+            rem=1;
+            while(low<=high)
+            {
+                mid=(low+high)/2;
+     
+                if(prefix[mid-1] <= x)
+                {
+                    rem=mid;
+     
+                    low=mid+1;
+                }
+                else
+                    high=mid-1;
+     
+            }
+     
+     
+            ans=seg.query(1,1,n,1,rem);
+     
+            if(ans >= INF)
+                ans = -1;
+     
+            printf("%lld\n", ans);
+        }
+     
+     
+        return 0;
+    }
+
